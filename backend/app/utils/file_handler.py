@@ -28,7 +28,7 @@ async def validate_zip(file: UploadFile) -> None:
 
     # Check magic bytes
     header = await file.read(4)
-    await file.seek(0)  # Reset file position
+    file.file.seek(0)  # Reset file position
     if header[:4] != ZIP_MAGIC_BYTES:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -36,9 +36,9 @@ async def validate_zip(file: UploadFile) -> None:
         )
 
     # Check file size
-    await file.seek(0, 2)  # Seek to end
+    file.file.seek(0, 2)  # Seek to end
     size = file.file.tell()
-    await file.seek(0)  # Reset
+    file.file.seek(0)  # Reset
     max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
     if size > max_bytes:
         raise HTTPException(
@@ -97,9 +97,9 @@ async def save_thumbnail(
         )
 
     # Check size (max 2MB for thumbnails)
-    await file.seek(0, 2)
+    file.file.seek(0, 2)
     size = file.file.tell()
-    await file.seek(0)
+    file.file.seek(0)
     if size > 2 * 1024 * 1024:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
