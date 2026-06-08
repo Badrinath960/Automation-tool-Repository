@@ -28,44 +28,72 @@ autorepo/
 
 ## 🚀 Quick Start Guide
 
-### 1. Database Setup
+### 1. Database Setup (via pgAdmin UI)
 
-1.  Ensure PostgreSQL is running locally on port 5432.
-2.  Log in to `psql` or pgAdmin using the username `postgres`.
-3.  Create the application database:
-    ```sql
-    CREATE DATABASE automation_tools_repo;
-    ```
+Follow these steps to create your database using the pgAdmin Graphical User Interface:
 
-### 2. Backend Installation & Startup
+1. **Open pgAdmin**: Launch the pgAdmin application on your computer.
+2. **Connect to Server**: Double-click on **Servers** in the left sidebar (Browser pane), and enter your PostgreSQL root password (usually for the `postgres` user) to connect.
+3. **Create Database**:
+   - Right-click on **Databases** under your server connection.
+   - Click **Create** ➔ **Database...**.
+   - In the **Database** field of the popup window, type: `automation_tools_repo`.
+   - Click **Save** at the bottom.
+4. Your database is now created and ready for migrations!
 
-1.  Navigate to the backend directory:
-    ```bash
-    cd backend
-    ```
-2.  Create and activate a Python virtual environment:
-    ```powershell
-    python -m venv venv
-    .\venv\Scripts\activate
-    ```
-3.  Install all required dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
-4.  Configure the environment variables in `backend/.env` (see reference below).
-5.  Run database schema migrations to create all tables:
-    ```bash
-    alembic upgrade head
-    ```
-6.  Seed the database with default categories, sample tools, and users:
-    ```bash
-    python seed.py
-    ```
-7.  Start the FastAPI development server:
-    ```bash
-    uvicorn app.main:app --reload --port 8000
-    ```
-    The API documentation will be available at: **[http://localhost:8000/docs](http://localhost:8000/docs)** (Swagger UI).
+---
+
+### 2. Backend Installation & Running Migrations
+
+Now, we will run the backend code to automatically generate all the database tables and seed sample data.
+
+1. **Open Terminal/PowerShell** and navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. **Create a virtual environment** to isolate python packages:
+   ```powershell
+   python -m venv venv
+   ```
+3. **Activate the virtual environment**:
+   - On Windows (PowerShell):
+     ```powershell
+     .\venv\Scripts\activate
+     ```
+   - On Mac/Linux:
+     ```bash
+     source venv/bin/activate
+     ```
+4. **Install backend dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+5. **Configure environment settings**:
+   - Create a file named `.env` in the `backend/` folder (refer to the **Environment Variables Reference** section below).
+   - Ensure the `DATABASE_URL` matches your local PostgreSQL password.
+6. **Run Database Migrations (Creates Tables)**:
+   - Run the following command to automatically generate all tables in your newly created database:
+     ```bash
+     alembic upgrade head
+     ```
+   - *To verify via pgAdmin*:
+     1. In the pgAdmin left sidebar, expand **Databases** ➔ **automation_tools_repo** ➔ **Schemas** ➔ **public** ➔ **Tables**.
+     2. Press `F5` to refresh. You should see 7 tables: `alembic_version`, `categories`, `dashboards`, `download_logs`, `tool_versions`, `tools`, and `users`.
+7. **Seed the database** (creates default admin account, categories, and sample scripts):
+   ```bash
+   python seed.py
+   ```
+   - *To verify data via pgAdmin*:
+     - Right-click on the `users` or `categories` table.
+     - Choose **View/Edit Data** ➔ **All Rows**.
+     - You should see the default admin accounts and system categories inside the data grid.
+8. **Start the Backend Server**:
+   ```bash
+   uvicorn app.main:app --reload --port 8000
+   ```
+   The interactive API Documentation will run at: **[http://localhost:8000/docs](http://localhost:8000/docs)** (Swagger UI).
+
+---
 
 ### 3. Frontend Installation & Startup
 
