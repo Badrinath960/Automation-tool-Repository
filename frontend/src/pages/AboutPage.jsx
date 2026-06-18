@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
+import NiqLogo from '../components/common/NiqLogo';
 import { Wrench, LayoutDashboard, Download, Upload, Shield, Info, Layers, CheckCircle } from 'lucide-react';
 
 const AboutPage = () => {
@@ -8,23 +9,21 @@ const AboutPage = () => {
   return (
     <div className="space-y-8 text-left max-w-4xl mx-auto">
       {/* Brand Hero */}
-      <div className="bg-white border border-border rounded-2xl p-6 md:p-8 shadow-sm text-center md:text-left flex flex-col md:flex-row items-center gap-6">
-        <div className="p-4 bg-primary-100 rounded-2xl text-primary-700">
-          <Wrench className="h-12 w-12" />
-        </div>
+      <div className="bg-white border border-border rounded-xl p-6 md:p-8 shadow-sm text-center md:text-left flex flex-col md:flex-row items-center gap-6">
+        <NiqLogo className="h-16 text-primary-500 flex-shrink-0" />
         <div className="space-y-2">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
-            Automation Tools Repository (ATR)
+          <h1 className="text-2xl md:text-3xl font-extrabold text-primary-900 tracking-tight">
+            Automation Tools Repository Hub
           </h1>
           <p className="text-gray-500 text-sm md:text-base max-w-2xl leading-relaxed">
-            ATR is a centralized workspace designed for discoverability, version-controlled distribution, 
+            Automation Tools Repository Hub is a centralized workspace designed for discoverability, version-controlled distribution, 
             and auditing of automation scripts and Power BI visual dashboards across internal teams.
           </p>
         </div>
       </div>
 
       {/* Tech Stack Info */}
-      <div className="bg-white border border-border rounded-2xl p-6 shadow-sm space-y-4">
+      <div className="bg-white border border-border rounded-xl p-6 shadow-sm space-y-4">
         <h2 className="text-lg font-bold text-gray-900 flex items-center border-b border-gray-100 pb-2">
           <Layers className="h-5 w-5 mr-2 text-primary-600" />
           Application Technology Stack
@@ -61,26 +60,26 @@ const AboutPage = () => {
       </div>
 
       {/* User Guide */}
-      <div className="bg-white border border-border rounded-2xl p-6 shadow-sm space-y-4">
+      <div className="bg-white border border-border rounded-xl p-6 shadow-sm space-y-4">
         <h2 className="text-lg font-bold text-gray-900 flex items-center border-b border-gray-100 pb-2">
-          <Download className="h-5 w-5 mr-2 text-indigo-600" />
+          <Download className="h-5 w-5 mr-2 text-primary-600" />
           User Guide: How to Download & Run Scripts
         </h2>
         <div className="space-y-3.5 pt-2 text-sm text-gray-700 leading-relaxed">
           <div className="flex items-start space-x-3">
-            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center font-bold text-xs text-indigo-600 mt-0.5">
+            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary-50 border border-primary-100 flex items-center justify-center font-bold text-xs text-primary-600 mt-0.5">
               1
             </span>
             <div>
               <p className="font-bold text-gray-900">Locate your Tool</p>
               <p className="text-gray-500 text-xs mt-0.5">
-                Browse the catalog, search by keywords, filter categories in the sidebar, or select tags to find your target script.
+                Browse the catalog, search by keywords, or filter categories in the sidebar to find your target script.
               </p>
             </div>
           </div>
 
           <div className="flex items-start space-x-3">
-            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center font-bold text-xs text-indigo-600 mt-0.5">
+            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary-50 border border-primary-100 flex items-center justify-center font-bold text-xs text-primary-600 mt-0.5">
               2
             </span>
             <div>
@@ -92,7 +91,7 @@ const AboutPage = () => {
           </div>
 
           <div className="flex items-start space-x-3">
-            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center font-bold text-xs text-indigo-600 mt-0.5">
+            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary-50 border border-primary-100 flex items-center justify-center font-bold text-xs text-primary-600 mt-0.5">
               3
             </span>
             <div>
@@ -104,7 +103,7 @@ const AboutPage = () => {
           </div>
 
           <div className="flex items-start space-x-3">
-            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center font-bold text-xs text-indigo-600 mt-0.5">
+            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary-50 border border-primary-100 flex items-center justify-center font-bold text-xs text-primary-600 mt-0.5">
               4
             </span>
             <div>
@@ -126,7 +125,7 @@ const AboutPage = () => {
 
       {/* Admin Guide (rendered only if administrator) */}
       {isAdmin && (
-        <div className="bg-white border border-border rounded-2xl p-6 shadow-sm space-y-4 border-l-4 border-l-primary-500">
+        <div className="bg-white border border-border rounded-xl p-6 shadow-sm space-y-4 border-l-4 border-l-primary-500">
           <h2 className="text-lg font-bold text-gray-900 flex items-center border-b border-gray-100 pb-2">
             <Shield className="h-5 w-5 mr-2 text-primary-600" />
             Admin Console Guide: Upload & Versioning

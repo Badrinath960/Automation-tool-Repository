@@ -289,7 +289,7 @@ const ToolDetailPage = () => {
     <div className="space-y-6">
       {/* Breadcrumb Navigation */}
       <nav className="flex items-center space-x-2 text-sm text-gray-500 font-semibold">
-        <Link to="/tools" className="hover:text-primary-600 transition-colors">
+        <Link to="/tools" className="hover:text-accent-600 transition-colors">
           Tools Directory
         </Link>
         <ChevronRight className="h-4 w-4" />
@@ -299,18 +299,18 @@ const ToolDetailPage = () => {
       </nav>
 
       {/* Hero Banner Card */}
-      <div className="bg-white border border-border rounded-2xl p-6 md:p-8 shadow-sm flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+      <div className="bg-white border border-border rounded-xl p-6 md:p-8 shadow-sm flex flex-col md:flex-row gap-6 md:gap-8 items-start">
         {/* Left Aspect Thumbnail */}
         <div className="aspect-video w-full md:w-80 bg-slate-100 rounded-xl border border-border overflow-hidden flex-shrink-0 relative">
           {thumbnailUrl ? (
             <img src={thumbnailUrl} alt={tool.name} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-primary-50 to-sky-100 flex items-center justify-center">
-              <Wrench className="h-16 w-16 text-primary-400" />
+            <div className="w-full h-full bg-slate-50 flex items-center justify-center">
+              <Wrench className="h-16 w-16 text-primary-500" />
             </div>
           )}
           {tool.is_featured && (
-            <div className="absolute top-3 left-3 bg-primary-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">
+            <div className="absolute top-3 left-3 bg-primary-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow border border-primary-400">
               FEATURED
             </div>
           )}
@@ -364,11 +364,23 @@ const ToolDetailPage = () => {
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <button
               onClick={handleDownloadLatest}
-              className="flex items-center space-x-2 px-5 py-2.5 rounded-xl font-bold text-white bg-primary-600 hover:bg-primary-700 transition-colors duration-150 shadow focus:outline-none"
+              className="flex items-center space-x-2 px-5 py-2.5 rounded-xl font-bold text-white bg-accent-600 hover:bg-accent-700 transition-colors duration-150 shadow focus:outline-none focus:ring-2 focus:ring-accent-550"
             >
               <Download className="h-5 w-5" />
               <span>Download Script ZIP</span>
             </button>
+
+            {tool.documentation_pdf_path && (
+              <a
+                href={`/api/files/${tool.documentation_pdf_path}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 px-5 py-2.5 rounded-xl font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors duration-150 shadow focus:outline-none focus:ring-2 focus:ring-accent-500"
+              >
+                <FileText className="h-5 w-5 text-gray-400" />
+                <span>Download PDF Guide</span>
+              </a>
+            )}
 
             {/* Admin Console Buttons */}
             {isAdmin && (
@@ -421,7 +433,7 @@ const ToolDetailPage = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center space-x-2 pb-4 px-1 border-b-2 font-bold text-sm transition-all duration-150 focus:outline-none ${
                     isActive
-                      ? 'border-primary-600 text-primary-600'
+                      ? 'border-accent-600 text-accent-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                   aria-current={isActive ? 'page' : undefined}
@@ -435,7 +447,7 @@ const ToolDetailPage = () => {
         </div>
 
         {/* Tab Panel contents */}
-        <div className="bg-white border border-border rounded-2xl p-6 shadow-sm text-left">
+        <div className="bg-white border border-border rounded-xl p-6 shadow-sm text-left">
           {activeTab === 'overview' && (
             <div className="space-y-6">
               <div>
@@ -465,15 +477,39 @@ const ToolDetailPage = () => {
           )}
 
           {activeTab === 'documentation' && (
-            <DocumentationViewer documentation={tool.documentation} />
+            <div className="space-y-4">
+              {tool.documentation_pdf_path && (
+                <div className="flex justify-between items-center bg-accent-50 border border-accent-100 p-4 rounded-xl mb-4">
+                  <div className="flex items-center space-x-3">
+                    <FileText className="h-6 w-6 text-accent-600" />
+                    <div>
+                      <p className="font-bold text-primary-900 text-sm">Detailed PDF Guide Available</p>
+                      <p className="text-xs text-gray-500">A structured PDF manual is uploaded for this automation script.</p>
+                    </div>
+                  </div>
+                  <a
+                    href={`/api/files/${tool.documentation_pdf_path}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary py-1.5 px-3 text-xs flex items-center space-x-1"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    <span>Download PDF</span>
+                  </a>
+                </div>
+              )}
+              <DocumentationViewer documentation={tool.documentation} />
+            </div>
           )}
 
           {activeTab === 'history' && (
             <VersionHistory
               toolId={tool.id}
               versions={tool.versions}
-              latestVersionId={tool.latest_version_id}
+              latestVersionId={tool.latest_version?.id || tool.latest_version_id}
               toolSlug={tool.slug}
+              isAdmin={isAdmin}
+              onDeleteSuccess={fetchToolDetails}
             />
           )}
 
@@ -488,7 +524,7 @@ const ToolDetailPage = () => {
                   {tool.dependencies.packages.map((pkg, idx) => (
                     <div key={idx} className="px-4 py-2 text-gray-800 flex items-center justify-between">
                       <span>{pkg}</span>
-                      <span className="text-[10px] font-bold text-primary-600 bg-primary-50 border border-primary-100 px-2 py-0.5 rounded">
+                      <span className="text-[10px] font-bold text-accent-600 bg-accent-50 border border-accent-100 px-2 py-0.5 rounded">
                         pip install
                       </span>
                     </div>

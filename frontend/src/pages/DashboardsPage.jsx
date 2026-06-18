@@ -163,7 +163,7 @@ const DashboardsPage = () => {
             {hasActiveFilters && (
               <button
                 onClick={handleClearFilters}
-                className="text-xs font-semibold text-primary-600 hover:text-primary-700 flex items-center gap-1 transition-colors"
+                className="text-xs font-semibold text-accent-600 hover:text-accent-700 flex items-center gap-1 transition-colors"
               >
                 <RefreshCcw className="h-3 w-3" />
                 Clear
@@ -181,7 +181,7 @@ const DashboardsPage = () => {
                   onClick={() => handleCategorySelect(category.id)}
                   className={`w-full flex items-center justify-between text-left px-3 py-2 rounded-lg text-sm transition-all duration-150 ${
                     categoryId === category.id
-                      ? 'bg-primary-50 text-primary-700 font-bold border border-primary-100'
+                      ? 'bg-accent-50 text-accent-700 font-bold border border-accent-100'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-transparent'
                   }`}
                 >

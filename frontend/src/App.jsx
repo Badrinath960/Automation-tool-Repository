@@ -22,7 +22,9 @@ import DashboardDetailPage from './pages/DashboardDetailPage';
 import AdminToolsPage from './pages/AdminToolsPage';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminAnalyticsPage from './pages/AdminAnalyticsPage';
+import AdminDashboardsPage from './pages/AdminDashboardsPage';
 import AboutPage from './pages/AboutPage';
+import HomePage from './pages/HomePage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Standard layout wrapper for authenticated users
@@ -78,7 +80,7 @@ function App() {
             <Route element={<PrivateRoute />}>
               {/* Standard directory paths */}
               <Route element={<ProtectedLayout />}>
-                <Route path="/" element={<Navigate to="/tools" replace />} />
+                <Route path="/" element={<HomePage />} />
                 <Route path="/tools" element={<ToolsPage />} />
                 <Route path="/tools/:id" element={<ToolDetailPage />} />
                 <Route path="/dashboards" element={<DashboardsPage />} />
@@ -93,6 +95,7 @@ function App() {
                   <Route path="/admin/tools" element={<AdminToolsPage />} />
                   <Route path="/admin/users" element={<AdminUsersPage />} />
                   <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+                  <Route path="/admin/dashboards" element={<AdminDashboardsPage />} />
                 </Route>
               </Route>
             </Route>

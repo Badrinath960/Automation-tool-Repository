@@ -139,7 +139,7 @@ const AdminUsersPage = () => {
   return (
     <div className="space-y-6 text-left">
       {/* Header toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 border border-border rounded-2xl shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 border border-border rounded-xl shadow-sm">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
             <Users className="h-6 w-6 text-primary-600" />
@@ -161,7 +161,7 @@ const AdminUsersPage = () => {
       </div>
 
       {/* Users table */}
-      <div className="bg-white border border-border rounded-2xl p-6 shadow-sm">
+      <div className="bg-white border border-border rounded-xl p-6 shadow-sm">
         <div className="space-y-6">
           <UserManagementTable
             users={users}

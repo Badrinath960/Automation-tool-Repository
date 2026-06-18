@@ -17,6 +17,13 @@ class Dashboard(Base):
     embed_url: Mapped[str] = mapped_column(
         String(1000), nullable=False
     )  # Power BI embed URL
+    report_url: Mapped[str] = mapped_column(
+        String(1000), nullable=True
+    )  # Power BI direct live report link
+    long_description = mapped_column(Text, nullable=True)
+    report_type: Mapped[str] = mapped_column(
+        String(50), default="Power BI", server_default="Power BI", nullable=True
+    )
     thumbnail_path = mapped_column(String(500), nullable=True)
     category_id = mapped_column(
         UUID(as_uuid=True), ForeignKey("categories.id"), nullable=True

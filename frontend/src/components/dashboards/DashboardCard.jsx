@@ -53,15 +53,15 @@ const DashboardCard = ({ dashboard, isAdmin, onEdit, onDelete }) => {
             loading="lazy"
           />
         ) : (
-          <div className="h-full w-full bg-gradient-to-br from-indigo-50 to-primary-100 flex items-center justify-center group-hover:from-indigo-100 group-hover:to-primary-200 transition-colors duration-300">
-            <LayoutDashboard className="h-12 w-12 text-primary-400 group-hover:scale-110 transition-transform duration-300" />
+          <div className="h-full w-full bg-slate-50 flex items-center justify-center group-hover:bg-slate-100 transition-colors duration-300">
+            <LayoutDashboard className="h-12 w-12 text-primary-500 group-hover:scale-110 transition-transform duration-300" />
           </div>
         )}
 
         {/* Featured Overlay */}
         {dashboard.is_featured && (
           <div className="absolute top-3 left-3">
-            <span className="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-bold text-white bg-primary-600 shadow-md">
+            <span className="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-bold text-white bg-primary-500 shadow-sm border border-primary-400">
               <Sparkles className="h-3 w-3" />
               <span>Featured</span>
             </span>
@@ -72,13 +72,16 @@ const DashboardCard = ({ dashboard, isAdmin, onEdit, onDelete }) => {
       {/* Content Section */}
       <div className="p-5 flex-grow flex flex-col justify-between space-y-4">
         <div className="space-y-2.5">
-          {/* Category Pill */}
-          <div>
+          {/* Category & Report Type Badge */}
+          <div className="flex flex-wrap gap-2">
             <Badge variant={categoryVariant}>{categoryName}</Badge>
+            {dashboard.report_type && (
+              <Badge variant="info">{dashboard.report_type}</Badge>
+            )}
           </div>
 
           {/* Title */}
-          <h3 className="text-lg font-bold text-gray-900 leading-snug group-hover:text-primary-700 transition-colors duration-150 truncate">
+          <h3 className="text-lg font-bold text-gray-900 leading-snug group-hover:text-accent-600 transition-colors duration-150 truncate">
             {dashboard.name}
           </h3>
 
@@ -94,9 +97,19 @@ const DashboardCard = ({ dashboard, isAdmin, onEdit, onDelete }) => {
 
           {/* Footer Actions */}
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-primary-600 group-hover:text-primary-700 transition-colors flex items-center">
-              View Dashboard &rarr;
-            </span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (dashboard.report_url) {
+                  window.open(dashboard.report_url, '_blank');
+                } else {
+                  navigate(`/dashboards/${dashboard.id}`);
+                }
+              }}
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-accent-600 hover:bg-accent-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent-500"
+            >
+              <span>View Report</span>
+            </button>
 
             {/* Admin Controls */}
             {isAdmin && (onEdit || onDelete) && (

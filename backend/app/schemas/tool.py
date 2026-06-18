@@ -90,6 +90,7 @@ class ToolOut(BaseModel):
     is_featured: bool
     dependencies: Optional[Dict[str, Any]] = None
     documentation: Optional[str] = None
+    documentation_pdf_path: Optional[str] = None
     versions: List[VersionOut] = []
     download_count: int = 0
     created_at: Optional[datetime] = None

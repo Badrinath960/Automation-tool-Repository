@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { Wrench, Mail, Lock, User as UserIcon, Eye, EyeOff } from 'lucide-react';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import NiqLogo from '../components/common/NiqLogo';
 
 const RegisterPage = () => {
   const { register: registerAction } = useAuth();
@@ -48,23 +49,21 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-sky-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="p-3 bg-primary-100 rounded-2xl text-primary-700 shadow-sm">
-            <Wrench className="h-10 w-10 animate-bounce" />
-          </div>
+          <NiqLogo className="h-10 text-primary-500" />
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 tracking-tight">
+        <h2 className="mt-6 text-center text-2xl md:text-3xl font-extrabold text-primary-900 tracking-tight">
           Create an Account
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Get access to the Automation Tools Repository
+          Get access to the Automation Tools Repository Hub
         </p>
       </div>
-
+ 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-        <div className="bg-white py-8 px-6 shadow-xl border border-border rounded-2xl sm:px-10">
+        <div className="bg-white py-8 px-6 shadow-md border border-border rounded-xl sm:px-10">
           <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
             {/* Full Name */}
             <div>
@@ -79,7 +78,7 @@ const RegisterPage = () => {
                   id="fullName"
                   type="text"
                   disabled={loading}
-                  className={`w-full pl-10 pr-3 py-2.5 border rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 ${
+                  className={`w-full pl-10 pr-3 py-2.5 border rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all duration-200 ${
                     errors.fullName ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="John Doe"
@@ -111,7 +110,7 @@ const RegisterPage = () => {
                   type="email"
                   autoComplete="email"
                   disabled={loading}
-                  className={`w-full pl-10 pr-3 py-2.5 border rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 ${
+                  className={`w-full pl-10 pr-3 py-2.5 border rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all duration-200 ${
                     errors.email ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="name@company.com"
@@ -142,7 +141,7 @@ const RegisterPage = () => {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   disabled={loading}
-                  className={`w-full pl-10 pr-10 py-2.5 border rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 ${
+                  className={`w-full pl-10 pr-10 py-2.5 border rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all duration-200 ${
                     errors.password ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="••••••••"
@@ -180,7 +179,7 @@ const RegisterPage = () => {
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
                   disabled={loading}
-                  className={`w-full pl-10 pr-10 py-2.5 border rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 ${
+                  className={`w-full pl-10 pr-10 py-2.5 border rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all duration-200 ${
                     errors.confirmPassword ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="••••••••"
@@ -207,7 +206,7 @@ const RegisterPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-accent-600 hover:bg-accent-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 {loading ? (
                   <div className="flex items-center space-x-2">
@@ -227,7 +226,7 @@ const RegisterPage = () => {
               Already have an account?{' '}
               <Link
                 to="/login"
-                className="font-bold text-primary-600 hover:text-primary-700 transition-colors"
+                className="font-bold text-accent-600 hover:text-accent-700 transition-colors"
               >
                 Sign In
               </Link>

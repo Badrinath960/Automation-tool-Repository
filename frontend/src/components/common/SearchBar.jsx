@@ -7,6 +7,7 @@ const SearchBar = ({
   onClear,
   placeholder = 'Search tools, dashboards or tags...',
   className = '',
+  onKeyDown,
 }) => {
   return (
     <div className={`relative flex-1 max-w-lg ${className}`}>
@@ -17,6 +18,7 @@ const SearchBar = ({
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onKeyDown={onKeyDown}
         className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
         placeholder={placeholder}
       />

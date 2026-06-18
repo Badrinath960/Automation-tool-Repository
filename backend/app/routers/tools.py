@@ -64,6 +64,7 @@ async def create_tool(
     release_notes: Optional[str] = Form(None),
     zip_file: UploadFile = File(...),
     thumbnail: Optional[UploadFile] = File(None),
+    documentation_pdf: Optional[UploadFile] = File(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
@@ -99,6 +100,14 @@ async def create_tool(
         thumbnail=thumbnail if thumbnail and thumbnail.filename else None,
     )
 
+    # Save PDF guide if provided
+    if documentation_pdf and documentation_pdf.filename:
+        from app.utils.file_handler import validate_pdf, save_pdf_file
+        await validate_pdf(documentation_pdf)
+        pdf_path = await save_pdf_file(documentation_pdf, tool.id)
+        tool.documentation_pdf_path = pdf_path
+        await db.commit()
+
     return {
         "success": True,
         "data": {"id": str(tool.id), "name": tool.name, "slug": tool.slug},
@@ -119,6 +128,7 @@ async def update_tool(
     dependencies: Optional[str] = Form(None),
     documentation: Optional[str] = Form(None),
     thumbnail: Optional[UploadFile] = File(None),
+    documentation_pdf: Optional[UploadFile] = File(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
@@ -127,25 +137,41 @@ async def update_tool(
     from app.utils.file_handler import save_thumbnail
     import json
 
-    tag_list = [t.strip() for t in tags.split(",") if t.strip()] if tags else None
-    deps = None
-    if dependencies:
-        try:
-            deps = json.loads(dependencies)
-        except json.JSONDecodeError:
-            deps = {"packages": [d.strip() for d in dependencies.split(",") if d.strip()]}
+    tag_list = None
+    if tags is not None:
+        tag_list = [t.strip() for t in tags.split(",") if t.strip()]
 
-    update_data = ToolUpdate(
-        name=name,
-        description=description,
-        long_description=long_description,
-        category_id=category_id,
-        tags=tag_list,
-        is_featured=is_featured,
-        is_active=is_active,
-        dependencies=deps,
-        documentation=documentation,
-    )
+    deps = None
+    if dependencies is not None:
+        if dependencies.strip() == "":
+            deps = {"packages": []}
+        else:
+            try:
+                deps = json.loads(dependencies)
+            except json.JSONDecodeError:
+                deps = {"packages": [d.strip() for d in dependencies.split(",") if d.strip()]}
+
+    update_dict = {}
+    if name is not None:
+        update_dict["name"] = name
+    if description is not None:
+        update_dict["description"] = description
+    if long_description is not None:
+        update_dict["long_description"] = long_description
+    if category_id is not None:
+        update_dict["category_id"] = category_id
+    if tag_list is not None:
+        update_dict["tags"] = tag_list
+    if is_featured is not None:
+        update_dict["is_featured"] = is_featured
+    if is_active is not None:
+        update_dict["is_active"] = is_active
+    if deps is not None:
+        update_dict["dependencies"] = deps
+    if documentation is not None:
+        update_dict["documentation"] = documentation
+
+    update_data = ToolUpdate(**update_dict)
 
     tool = await tool_service.update_tool(db, tool_id, update_data)
 
@@ -153,6 +179,14 @@ async def update_tool(
     if thumbnail and thumbnail.filename:
         thumb_path = await save_thumbnail(thumbnail, "tool", tool.id)
         tool.thumbnail_path = thumb_path
+        await db.commit()
+
+    # Update PDF guide if provided
+    if documentation_pdf and documentation_pdf.filename:
+        from app.utils.file_handler import validate_pdf, save_pdf_file
+        await validate_pdf(documentation_pdf)
+        pdf_path = await save_pdf_file(documentation_pdf, tool.id)
+        tool.documentation_pdf_path = pdf_path
         await db.commit()
 
     return {
@@ -174,6 +208,22 @@ async def delete_tool(
         "success": True,
         "message": f"Tool '{tool.name}' deactivated",
     }
+
+
+@router.delete("/{tool_id}/versions/{version_id}", response_model=dict)
+async def delete_version(
+    tool_id: uuid.UUID,
+    version_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    """[ADMIN] Delete a specific version of a tool."""
+    await tool_service.delete_tool_version(db, tool_id, version_id)
+    return {
+        "success": True,
+        "message": "Tool version deleted successfully",
+    }
+
 
 
 @router.post("/{tool_id}/version", response_model=dict, status_code=201)

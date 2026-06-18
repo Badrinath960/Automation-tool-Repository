@@ -84,15 +84,15 @@ const ToolCard = ({ tool, onDownloadSuccess }) => {
             loading="lazy"
           />
         ) : (
-          <div className="h-full w-full bg-gradient-to-br from-primary-50 to-sky-100 flex items-center justify-center group-hover:from-primary-100 group-hover:to-sky-200 transition-colors duration-300">
-            <Wrench className="h-12 w-12 text-primary-400 group-hover:scale-110 transition-transform duration-300" />
+          <div className="h-full w-full bg-slate-50 flex items-center justify-center group-hover:bg-slate-100 transition-colors duration-300">
+            <Wrench className="h-12 w-12 text-primary-500 group-hover:scale-110 transition-transform duration-300" />
           </div>
         )}
 
         {/* Featured Overlay */}
         {tool.is_featured && (
           <div className="absolute top-3 left-3">
-            <span className="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-bold text-white bg-primary-600 shadow-md">
+            <span className="flex items-center space-x-1 px-2.5 py-1 rounded-lg text-xs font-bold text-white bg-primary-500 shadow-sm border border-primary-400">
               <Sparkles className="h-3 w-3" />
               <span>Featured</span>
             </span>
@@ -102,7 +102,7 @@ const ToolCard = ({ tool, onDownloadSuccess }) => {
         {/* Latest Version overlay */}
         {tool.latest_version && (
           <div className="absolute bottom-3 right-3">
-            <span className="px-2 py-0.5 rounded bg-slate-900/70 backdrop-blur-sm text-xs font-bold text-white uppercase tracking-wider">
+            <span className="px-2 py-0.5 rounded bg-slate-800 text-xs font-bold text-white uppercase tracking-wider">
               v{tool.latest_version.version_number}
             </span>
           </div>
@@ -118,7 +118,7 @@ const ToolCard = ({ tool, onDownloadSuccess }) => {
           </div>
 
           {/* Title */}
-          <h3 className="text-lg font-bold text-gray-900 leading-snug group-hover:text-primary-700 transition-colors duration-150 truncate">
+          <h3 className="text-lg font-bold text-gray-900 leading-snug group-hover:text-accent-600 transition-colors duration-150 truncate">
             {tool.name}
           </h3>
 
@@ -129,26 +129,6 @@ const ToolCard = ({ tool, onDownloadSuccess }) => {
         </div>
 
         <div className="space-y-4 pt-2">
-          {/* Tags */}
-          {tagList.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 items-center">
-              <Tag className="h-3.5 w-3.5 text-gray-400 mr-0.5" />
-              {tagList.slice(0, 3).map((tag, idx) => (
-                <span
-                  key={idx}
-                  className="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded"
-                >
-                  {tag}
-                </span>
-              ))}
-              {tagList.length > 3 && (
-                <span className="text-xs text-gray-400 font-semibold pl-0.5">
-                  +{tagList.length - 3} more
-                </span>
-              )}
-            </div>
-          )}
-
           {/* Divider */}
           <div className="border-t border-gray-100" />
 
@@ -163,7 +143,7 @@ const ToolCard = ({ tool, onDownloadSuccess }) => {
             {/* Download Trigger */}
             <button
               onClick={handleDownload}
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-primary-600 hover:bg-primary-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-accent-600 hover:bg-accent-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent-500"
               aria-label={`Download latest version of ${tool.name}`}
             >
               <Download className="h-3.5 w-3.5" />

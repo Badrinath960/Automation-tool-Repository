@@ -23,9 +23,6 @@ settings = get_settings()
 DEFAULT_CATEGORIES = [
     {"name": "Data Processing", "description": "Tools for processing and transforming data", "icon": "database"},
     {"name": "Automation", "description": "Workflow and task automation scripts", "icon": "zap"},
-    {"name": "Reporting", "description": "Report generation and export tools", "icon": "file-text"},
-    {"name": "Integration", "description": "System and API integration utilities", "icon": "link"},
-    {"name": "Analytics", "description": "Data analysis and visualization tools", "icon": "bar-chart-2"},
 ]
 
 # Sample tools for demo
@@ -61,7 +58,7 @@ SAMPLE_TOOLS = [
         "slug": "power-bi-report-exporter",
         "description": "Automates exporting Power BI reports to PDF and Excel formats.",
         "long_description": "Automates the process of exporting Power BI reports and dashboards to various formats including PDF, Excel, and PowerPoint. Supports scheduled exports and email distribution.",
-        "category_name": "Reporting",
+        "category_name": "Automation",
         "tags": ["power-bi", "export", "pdf"],
         "is_featured": False,
         "dependencies": {"packages": ["requests", "pdfkit"]},

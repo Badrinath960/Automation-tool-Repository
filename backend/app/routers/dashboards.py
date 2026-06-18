@@ -43,7 +43,10 @@ async def get_dashboard(
 async def create_dashboard(
     name: str = Form(...),
     description: Optional[str] = Form(None),
+    long_description: Optional[str] = Form(None),
     embed_url: str = Form(...),
+    report_url: Optional[str] = Form(None),
+    report_type: Optional[str] = Form("Power BI"),
     category_id: Optional[uuid.UUID] = Form(None),
     tags: Optional[str] = Form(None),
     is_featured: bool = Form(False),
@@ -59,7 +62,10 @@ async def create_dashboard(
     dashboard_data = DashboardCreate(
         name=name,
         description=description,
+        long_description=long_description,
         embed_url=embed_url,
+        report_url=report_url,
+        report_type=report_type,
         category_id=category_id,
         tags=tag_list,
         is_featured=is_featured,
@@ -92,7 +98,10 @@ async def update_dashboard(
     dashboard_id: uuid.UUID,
     name: Optional[str] = Form(None),
     description: Optional[str] = Form(None),
+    long_description: Optional[str] = Form(None),
     embed_url: Optional[str] = Form(None),
+    report_url: Optional[str] = Form(None),
+    report_type: Optional[str] = Form(None),
     category_id: Optional[uuid.UUID] = Form(None),
     tags: Optional[str] = Form(None),
     is_featured: Optional[bool] = Form(None),
@@ -104,17 +113,33 @@ async def update_dashboard(
     """[ADMIN] Update dashboard metadata."""
     from app.schemas.dashboard import DashboardUpdate
 
-    tag_list = [t.strip() for t in tags.split(",") if t.strip()] if tags else None
+    tag_list = None
+    if tags is not None:
+        tag_list = [t.strip() for t in tags.split(",") if t.strip()]
 
-    update_data = DashboardUpdate(
-        name=name,
-        description=description,
-        embed_url=embed_url,
-        category_id=category_id,
-        tags=tag_list,
-        is_featured=is_featured,
-        is_active=is_active,
-    )
+    update_dict = {}
+    if name is not None:
+        update_dict["name"] = name
+    if description is not None:
+        update_dict["description"] = description
+    if long_description is not None:
+        update_dict["long_description"] = long_description
+    if embed_url is not None:
+        update_dict["embed_url"] = embed_url
+    if report_url is not None:
+        update_dict["report_url"] = report_url
+    if report_type is not None:
+        update_dict["report_type"] = report_type
+    if category_id is not None:
+        update_dict["category_id"] = category_id
+    if tag_list is not None:
+        update_dict["tags"] = tag_list
+    if is_featured is not None:
+        update_dict["is_featured"] = is_featured
+    if is_active is not None:
+        update_dict["is_active"] = is_active
+
+    update_data = DashboardUpdate(**update_dict)
 
     dashboard = await dashboard_service.update_dashboard(db, dashboard_id, update_data)
 

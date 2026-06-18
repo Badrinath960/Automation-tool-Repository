@@ -103,7 +103,16 @@ async def get_tools(
         latest_version = None
         for v in tool.versions:
             if v.is_latest:
-                latest_version = v.version_number
+                latest_version = {
+                    "id": v.id,
+                    "version_number": v.version_number,
+                    "file_path": v.file_path,
+                    "file_size_bytes": v.file_size_bytes,
+                    "release_notes": v.release_notes,
+                    "is_latest": v.is_latest,
+                    "uploaded_by": v.uploaded_by,
+                    "created_at": v.created_at,
+                }
                 break
 
         items.append({
@@ -176,6 +185,22 @@ async def get_tool_by_id(db: AsyncSession, tool_id: uuid.UUID) -> dict:
             "created_at": v.created_at,
         })
 
+    # Get latest version
+    latest_version = None
+    for v in tool.versions:
+        if v.is_latest:
+            latest_version = {
+                "id": v.id,
+                "version_number": v.version_number,
+                "file_path": v.file_path,
+                "file_size_bytes": v.file_size_bytes,
+                "release_notes": v.release_notes,
+                "is_latest": v.is_latest,
+                "uploaded_by": v.uploaded_by,
+                "created_at": v.created_at,
+            }
+            break
+
     return {
         "id": tool.id,
         "name": tool.name,
@@ -195,7 +220,9 @@ async def get_tool_by_id(db: AsyncSession, tool_id: uuid.UUID) -> dict:
         "is_featured": tool.is_featured,
         "dependencies": tool.dependencies,
         "documentation": tool.documentation,
+        "documentation_pdf_path": tool.documentation_pdf_path,
         "versions": versions,
+        "latest_version": latest_version,
         "download_count": download_count,
         "created_at": tool.created_at,
         "updated_at": tool.updated_at,
@@ -433,3 +460,66 @@ async def get_categories(db: AsyncSession) -> list:
         }
         for c in categories
     ]
+
+
+async def delete_tool_version(
+    db: AsyncSession, tool_id: uuid.UUID, version_id: uuid.UUID
+) -> ToolVersion:
+    """[ADMIN] Delete a specific version of a tool."""
+    # Verify version exists and belongs to tool
+    result = await db.execute(
+        select(ToolVersion).where(
+            ToolVersion.id == version_id,
+            ToolVersion.tool_id == tool_id
+        )
+    )
+    version = result.scalar_one_or_none()
+    if not version:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tool version not found",
+        )
+
+    # Check if this is the only version of the tool
+    count_result = await db.execute(
+        select(func.count(ToolVersion.id)).where(ToolVersion.tool_id == tool_id)
+    )
+    version_count = count_result.scalar() or 0
+    if version_count <= 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot delete the only version of a tool. Please deactivate or delete the tool instead.",
+        )
+
+    # If the version being deleted is the latest version, promote the previous one
+    if version.is_latest:
+        prev_result = await db.execute(
+            select(ToolVersion)
+            .where(ToolVersion.tool_id == tool_id, ToolVersion.id != version_id)
+            .order_by(ToolVersion.created_at.desc())
+            .limit(1)
+        )
+        prev_version = prev_result.scalar_one_or_none()
+        if prev_version:
+            prev_version.is_latest = True
+
+    # Nullify references in download logs to prevent foreign key errors
+    await db.execute(
+        update(DownloadLog)
+        .where(DownloadLog.tool_version_id == version_id)
+        .values(tool_version_id=None)
+    )
+
+    # Delete the physical file on disk
+    if version.file_path:
+        try:
+            await delete_file(version.file_path)
+        except Exception as e:
+            # Log the error but proceed with database deletion
+            print(f"Error deleting version file: {e}")
+
+    # Delete the DB row
+    await db.delete(version)
+    await db.commit()
+
+    return version

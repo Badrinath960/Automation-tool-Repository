@@ -71,8 +71,70 @@ async def save_zip_file(
 
     file_size = len(content)
     relative_path = str(file_path).replace("\\", "/")
-
     return relative_path, file_size
+
+
+# PDF magic bytes (%PDF)
+PDF_MAGIC_BYTES = b"%PDF"
+
+
+async def validate_pdf(file: UploadFile) -> None:
+    """
+    Validate that an uploaded file is a genuine PDF document.
+    Checks both file extension and magic bytes.
+    """
+    # Check extension
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Only .pdf files are allowed",
+        )
+
+    # Check magic bytes
+    header = await file.read(4)
+    file.file.seek(0)  # Reset file position
+    if header[:4] != PDF_MAGIC_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="File is not a valid PDF document",
+        )
+
+    # Check file size (max 10MB)
+    file.file.seek(0, 2)
+    size = file.file.tell()
+    file.file.seek(0)
+    max_bytes = 10 * 1024 * 1024
+    if size > max_bytes:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="PDF guide must be under 10MB",
+        )
+
+
+async def save_pdf_file(
+    file: UploadFile,
+    tool_id: uuid.UUID,
+) -> str:
+    """
+    Save a PDF document to uploads/docs/{tool_id}/.
+    Returns relative path.
+    """
+    doc_dir = Path(settings.UPLOAD_DIR) / "docs" / str(tool_id)
+    doc_dir.mkdir(parents=True, exist_ok=True)
+
+    # Sanitize filename
+    safe_name = _sanitize_filename(file.filename or "guide.pdf")
+    if not safe_name.lower().endswith(".pdf"):
+        safe_name += ".pdf"
+    file_path = doc_dir / safe_name
+
+    # Write file
+    content = await file.read()
+    async with aiofiles.open(file_path, "wb") as f:
+        await f.write(content)
+
+    relative_path = str(file_path).replace("\\", "/")
+    return relative_path
 
 
 async def save_thumbnail(

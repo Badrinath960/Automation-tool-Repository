@@ -13,6 +13,8 @@ import {
   Calendar,
   FileSpreadsheet,
   TrendingUp,
+  Plus,
+  Trash2,
 } from 'lucide-react';
 
 const AdminAnalyticsPage = () => {
@@ -31,6 +33,12 @@ const AdminAnalyticsPage = () => {
   const [topTools, setTopTools] = useState([]);
   const [recentDownloads, setRecentDownloads] = useState([]);
   const [exportLoading, setExportLoading] = useState(false);
+
+  // Category management states
+  const [categories, setCategories] = useState([]);
+  const [newCatName, setNewCatName] = useState('');
+  const [newCatDesc, setNewCatDesc] = useState('');
+  const [catLoading, setCatLoading] = useState(false);
 
   const loadStaticData = async () => {
     try {
@@ -64,11 +72,25 @@ const AdminAnalyticsPage = () => {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const res = await analyticsApi.getCategories();
+      if (res?.success) {
+        setCategories(res.data || []);
+      }
+    } catch (e) {
+      console.error('Failed to load categories:', e);
+    }
+  };
+
   useEffect(() => {
     const initData = async () => {
       setLoading(true);
-      await loadStaticData();
-      await loadTrendData(activeRange);
+      await Promise.all([
+        loadStaticData(),
+        loadTrendData(activeRange),
+        fetchCategories(),
+      ]);
       setLoading(false);
     };
     initData();
@@ -82,7 +104,6 @@ const AdminAnalyticsPage = () => {
   const handleExportCsv = async () => {
     setExportLoading(true);
     try {
-      // Calculate start date based on activeRange
       const endDate = new Date().toISOString().split('T')[0];
       const startDateObj = new Date();
       startDateObj.setDate(startDateObj.getDate() - activeRange);
@@ -109,6 +130,50 @@ const AdminAnalyticsPage = () => {
     }
   };
 
+  const handleAddCategory = async (e) => {
+    e.preventDefault();
+    if (!newCatName.trim()) {
+      toast.error('Category name is required');
+      return;
+    }
+    setCatLoading(true);
+    try {
+      const res = await analyticsApi.createCategory({
+        name: newCatName.trim(),
+        description: newCatDesc.trim() || null,
+        icon: 'folder',
+      });
+      if (res?.success) {
+        toast.success(res.message || 'Category created successfully');
+        setNewCatName('');
+        setNewCatDesc('');
+        fetchCategories();
+      }
+    } catch (err) {
+      console.error(err);
+      const msg = err.response?.data?.detail || 'Failed to create category';
+      toast.error(msg);
+    } finally {
+      setCatLoading(false);
+    }
+  };
+
+  const handleDeleteCategory = async (catId, catName) => {
+    if (!window.confirm(`Are you sure you want to delete category "${catName}"? Associated tools and dashboards will be set to Uncategorized.`)) {
+      return;
+    }
+    try {
+      const res = await analyticsApi.deleteCategory(catId);
+      if (res?.success) {
+        toast.success(res.message || 'Category deleted');
+        fetchCategories();
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to delete category');
+    }
+  };
+
   const formatLogDate = (dateString) => {
     if (!dateString) return '—';
     const date = new Date(dateString);
@@ -128,53 +193,51 @@ const AdminAnalyticsPage = () => {
     );
   }
 
-  // Cards layout configuration
   const kpiCards = [
     {
       label: 'Active Script Tools',
       value: overview.total_tools,
       icon: Package,
-      bgColor: 'bg-blue-50 text-blue-600 border-blue-100',
+      bgColor: 'bg-primary-50 text-primary-600 border-primary-100',
     },
     {
       label: 'BI Dashboards',
       value: overview.total_dashboards,
       icon: LayoutDashboard,
-      bgColor: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+      bgColor: 'bg-primary-50 text-primary-600 border-primary-100',
     },
     {
       label: 'Registered Users',
       value: overview.total_users,
       icon: Users,
-      bgColor: 'bg-violet-50 text-violet-600 border-violet-100',
+      bgColor: 'bg-primary-50 text-primary-600 border-primary-100',
     },
     {
       label: 'Total Downloads',
       value: overview.total_downloads,
       icon: Download,
-      bgColor: 'bg-amber-50 text-amber-600 border-amber-100',
+      bgColor: 'bg-primary-50 text-primary-600 border-primary-100',
     },
   ];
 
   return (
     <div className="space-y-8 text-left">
       {/* Header controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 border border-border rounded-2xl shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 border border-border rounded-xl shadow-sm">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">System Analytics</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Overview metrics and download activities for ATR
+            Overview metrics and download activities for ATR Hub
           </p>
         </div>
 
         <div className="flex items-center space-x-3 self-end sm:self-center">
-          {/* CSV Export */}
           <button
             onClick={handleExportCsv}
             disabled={exportLoading}
-            className="flex items-center space-x-1.5 px-4 py-2 border border-gray-300 rounded-lg text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50 transition-colors focus:outline-none"
+            className="flex items-center space-x-1.5 px-4 py-2 border border-gray-300 rounded-lg text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-500"
           >
-            <FileSpreadsheet className="h-4.5 w-4.5 text-emerald-500" />
+            <FileSpreadsheet className="h-4.5 w-4.5 text-accent-550" />
             <span>{exportLoading ? 'Exporting...' : 'Export Logs CSV'}</span>
           </button>
         </div>
@@ -187,7 +250,7 @@ const AdminAnalyticsPage = () => {
           return (
             <div
               key={idx}
-              className="bg-white border border-border rounded-2xl p-6 shadow-sm flex items-center justify-between transition-all duration-200 hover:shadow"
+              className="bg-white border border-border rounded-xl p-6 shadow-sm flex items-center justify-between transition-all duration-200 hover:shadow"
             >
               <div className="space-y-1.5">
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">{card.label}</p>
@@ -206,7 +269,7 @@ const AdminAnalyticsPage = () => {
         {/* Date Filter Bar */}
         <div className="flex items-center justify-between border-b border-border pb-3">
           <h2 className="text-lg font-bold text-gray-900 flex items-center">
-            <TrendingUp className="h-5 w-5 mr-2 text-primary-500" />
+            <TrendingUp className="h-5 w-5 mr-2 text-accent-500" />
             Activity Trends
           </h2>
           
@@ -234,46 +297,46 @@ const AdminAnalyticsPage = () => {
         {/* Charts Grids */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Daily downloads */}
-          <div className="bg-white border border-border rounded-2xl p-6 shadow-sm">
+          <div className="bg-white border border-border rounded-xl p-6 shadow-sm">
             <AnalyticsChart
               data={downloadTrends}
               type="line"
               dataKey="count"
               xKey="date"
               title="Daily Downloads"
-              color="#0ea5e9"
+              color="#0057B8"
             />
           </div>
-
+ 
           {/* User registrations */}
-          <div className="bg-white border border-border rounded-2xl p-6 shadow-sm">
+          <div className="bg-white border border-border rounded-xl p-6 shadow-sm">
             <AnalyticsChart
               data={registrationTrends}
               type="line"
               dataKey="new_users"
               xKey="date"
               title="New Registrations"
-              color="#8b5cf6" // Violet-500
+              color="#475569"
             />
           </div>
         </div>
-
+ 
         {/* Bar chart - Popular tools */}
-        <div className="bg-white border border-border rounded-2xl p-6 shadow-sm">
+        <div className="bg-white border border-border rounded-xl p-6 shadow-sm">
           <AnalyticsChart
             data={topTools}
             type="bar"
             dataKey="download_count"
             xKey="tool_name"
             title="Top Downloaded Tools (All Time)"
-            color="#f59e0b" // Amber-500
+            color="#0057B8"
             height={320}
           />
         </div>
       </div>
 
       {/* Recent Activity Table */}
-      <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-border bg-gray-50 flex items-center justify-between">
           <h3 className="font-bold text-gray-900 flex items-center">
             <Calendar className="h-5 w-5 mr-2 text-gray-400" />
@@ -324,6 +387,88 @@ const AdminAnalyticsPage = () => {
             </table>
           </div>
         )}
+      </div>
+
+      {/* Category Management */}
+      <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden p-6 space-y-6">
+        <div>
+          <h3 className="text-lg font-bold text-gray-900 flex items-center">
+            <Package className="h-5 w-5 mr-2 text-accent-500" />
+            Category Management
+          </h3>
+          <p className="text-sm text-gray-500 mt-0.5">
+            Add or remove categories from the catalog. Removing a category uncategorizes its items.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Add Category Form */}
+          <form onSubmit={handleAddCategory} className="space-y-4 lg:col-span-1 border-r border-gray-100 pr-0 lg:pr-8">
+            <h4 className="font-bold text-sm text-gray-800 uppercase tracking-wider">Add New Category</h4>
+            
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase">Category Name *</label>
+              <input
+                type="text"
+                disabled={catLoading}
+                value={newCatName}
+                onChange={(e) => setNewCatName(e.target.value)}
+                className="input-field mt-1 text-sm"
+                placeholder="e.g. Data Analysis"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase">Description</label>
+              <textarea
+                disabled={catLoading}
+                value={newCatDesc}
+                onChange={(e) => setNewCatDesc(e.target.value)}
+                className="input-field mt-1 text-sm"
+                rows={2}
+                placeholder="Briefly explain what items belong here..."
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={catLoading}
+              className="w-full flex items-center justify-center space-x-1.5 px-4 py-2 border border-transparent rounded-lg text-sm font-bold text-white bg-accent-600 hover:bg-accent-700 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-500"
+            >
+              <Plus className="h-4.5 w-4.5" />
+              <span>{catLoading ? 'Creating...' : 'Create Category'}</span>
+            </button>
+          </form>
+
+          {/* Categories List */}
+          <div className="lg:col-span-2 space-y-4">
+            <h4 className="font-bold text-sm text-gray-800 uppercase tracking-wider">Active Categories ({categories.length})</h4>
+            
+            {categories.length === 0 ? (
+              <p className="text-sm text-gray-400">No categories defined.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[300px] overflow-y-auto pr-2">
+                {categories.map((cat) => (
+                  <div key={cat.id} className="p-4 border border-gray-200 rounded-xl bg-slate-50 flex items-start justify-between gap-3 hover:border-gray-300 transition-colors">
+                    <div className="space-y-1 text-left min-w-0">
+                      <p className="font-bold text-gray-900 truncate text-sm">{cat.name}</p>
+                      <p className="text-xs text-gray-500 line-clamp-2">{cat.description || 'No description'}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                      className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                      title="Delete Category"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

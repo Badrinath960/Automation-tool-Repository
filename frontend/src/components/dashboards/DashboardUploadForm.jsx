@@ -19,8 +19,10 @@ const DashboardUploadForm = ({ initialData = null, categories = [], onSuccess, o
     defaultValues: {
       name: initialData?.name || '',
       description: initialData?.description || '',
-      embed_url: initialData?.embed_url || '',
-      category_id: initialData?.category_id || '',
+      long_description: initialData?.long_description || '',
+      report_url: initialData?.report_url || '',
+      report_type: initialData?.report_type || 'Power BI',
+      category_id: initialData?.category?.id || initialData?.category_id || '',
       tags: initialData?.tags ? initialData.tags.join(', ') : '',
       is_featured: initialData?.is_featured || false,
     },
@@ -49,7 +51,10 @@ const DashboardUploadForm = ({ initialData = null, categories = [], onSuccess, o
     const formData = new FormData();
     formData.append('name', data.name);
     formData.append('description', data.description);
-    formData.append('embed_url', data.embed_url);
+    formData.append('long_description', data.long_description);
+    formData.append('report_url', data.report_url);
+    formData.append('embed_url', data.report_url); // compatibility
+    formData.append('report_type', data.report_type);
     if (data.category_id) formData.append('category_id', data.category_id);
     formData.append('tags', data.tags);
     formData.append('is_featured', String(data.is_featured));
@@ -121,12 +126,12 @@ const DashboardUploadForm = ({ initialData = null, categories = [], onSuccess, o
 
       {/* Description */}
       <div>
-        <label className="block text-sm font-bold text-gray-700">Description *</label>
+        <label className="block text-sm font-bold text-gray-700">Short Summary Description *</label>
         <input
           type="text"
           disabled={loading}
           className={`input-field mt-1 ${errors.description ? 'border-red-300' : 'border-gray-300'}`}
-          placeholder="Brief summary explaining what metrics are visualised in this view"
+          placeholder="Brief 1-liner description explaining what metrics are visualised"
           {...register('description', {
             required: 'Description is required',
             maxLength: { value: 150, message: 'Must be 150 characters or less' },
@@ -137,25 +142,48 @@ const DashboardUploadForm = ({ initialData = null, categories = [], onSuccess, o
         )}
       </div>
 
-      {/* Power BI Embed URL */}
+      {/* Long Description */}
       <div>
-        <label className="block text-sm font-bold text-gray-700">Power BI Embed URL *</label>
-        <input
-          type="url"
+        <label className="block text-sm font-bold text-gray-700">Detailed Overview / Description</label>
+        <textarea
           disabled={loading}
-          className={`input-field mt-1 ${errors.embed_url ? 'border-red-300' : 'border-gray-300'}`}
-          placeholder="e.g. https://app.powerbi.com/reportEmbed?reportId=..."
-          {...register('embed_url', {
-            required: 'Power BI Embed URL is required',
-            pattern: {
-              value: /^https:\/\/(?:[a-zA-Z0-9-]+\.)*powerbi\.com\//i,
-              message: 'Must be a valid Power BI domain URL',
-            },
-          })}
+          rows={3}
+          className="input-field mt-1 border-gray-300"
+          placeholder="Detailed explanation of the report, target audience, update schedule, etc."
+          {...register('long_description')}
         />
-        {errors.embed_url && (
-          <p className="mt-1 text-xs text-red-500 font-medium">{errors.embed_url.message}</p>
-        )}
+      </div>
+
+      {/* 2-Column Links & Details */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Power BI Live URL */}
+        <div>
+          <label className="block text-sm font-bold text-gray-700">Power BI Live Report URL *</label>
+          <input
+            type="url"
+            disabled={loading}
+            className={`input-field mt-1 ${errors.report_url ? 'border-red-300' : 'border-gray-300'}`}
+            placeholder="e.g. https://app.powerbi.com/groups/.../reports/..."
+            {...register('report_url', {
+              required: 'Power BI Live Report URL is required',
+            })}
+          />
+          {errors.report_url && (
+            <p className="mt-1 text-xs text-red-500 font-medium">{errors.report_url.message}</p>
+          )}
+        </div>
+
+        {/* Report Type */}
+        <div>
+          <label className="block text-sm font-bold text-gray-700">Report Type</label>
+          <input
+            type="text"
+            disabled={loading}
+            className="input-field mt-1 border-gray-300"
+            placeholder="e.g. Power BI, Tableau, Excel Online"
+            {...register('report_type')}
+          />
+        </div>
       </div>
 
       {/* Tags */}
@@ -174,7 +202,7 @@ const DashboardUploadForm = ({ initialData = null, categories = [], onSuccess, o
       <div>
         <label className="block text-sm font-bold text-gray-700 mb-1.5">Cover Image (Optional)</label>
         <div className="flex space-x-4">
-          <div className="relative flex-grow border-2 border-dashed border-gray-300 hover:border-primary-400 rounded-xl p-4 transition-colors duration-150 flex flex-col items-center justify-center bg-gray-50">
+          <div className="relative flex-grow border-2 border-dashed border-gray-300 hover:border-accent-400 rounded-xl p-4 transition-colors duration-150 flex flex-col items-center justify-center bg-gray-50">
             <input
               type="file"
               accept="image/*"
@@ -184,7 +212,7 @@ const DashboardUploadForm = ({ initialData = null, categories = [], onSuccess, o
             />
             {thumbnailFile ? (
               <div className="text-center space-y-1">
-                <ImageIcon className="h-8 w-8 text-primary-500 mx-auto" />
+                <ImageIcon className="h-8 w-8 text-accent-500 mx-auto" />
                 <p className="text-sm font-bold text-gray-800 truncate max-w-xs">{thumbnailFile.name}</p>
                 <p className="text-xs text-gray-500">{(thumbnailFile.size / 1024).toFixed(1)} KB</p>
               </div>
@@ -222,7 +250,7 @@ const DashboardUploadForm = ({ initialData = null, categories = [], onSuccess, o
           id="is_featured"
           type="checkbox"
           disabled={loading}
-          className="h-4.5 w-4.5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 transition-colors cursor-pointer"
+          className="h-4.5 w-4.5 text-accent-600 border-gray-300 rounded focus:ring-accent-500 transition-colors cursor-pointer"
           {...register('is_featured')}
         />
         <label htmlFor="is_featured" className="text-sm font-semibold text-gray-700 cursor-pointer select-none">
@@ -243,7 +271,7 @@ const DashboardUploadForm = ({ initialData = null, categories = [], onSuccess, o
         <button
           type="submit"
           disabled={loading}
-          className="px-5 py-2 rounded-lg text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 transition-colors flex items-center space-x-2"
+          className="px-5 py-2 rounded-lg text-sm font-bold text-white bg-accent-600 hover:bg-accent-700 transition-colors flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2"
         >
           {loading ? (
             <>

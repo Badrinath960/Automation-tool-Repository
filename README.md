@@ -28,89 +28,120 @@ autorepo/
 
 ## 🚀 Quick Start Guide
 
-### 1. Database Setup (via pgAdmin UI)
-
-Follow these steps to create your database using the pgAdmin Graphical User Interface:
-
-1. **Open pgAdmin**: Launch the pgAdmin application on your computer.
-2. **Connect to Server**: Double-click on **Servers** in the left sidebar (Browser pane), and enter your PostgreSQL root password (usually for the `postgres` user) to connect.
-3. **Create Database**:
-   - Right-click on **Databases** under your server connection.
-   - Click **Create** ➔ **Database...**.
-   - In the **Database** field of the popup window, type: `automation_tools_repo`.
-   - Click **Save** at the bottom.
-4. Your database is now created and ready for migrations!
+This step-by-step walkthrough will guide you through setting up the local database, running backend migrations, and starting up both servers.
 
 ---
 
-### 2. Backend Installation & Running Migrations
+### 1. Database Setup (via pgAdmin UI)
 
-Now, we will run the backend code to automatically generate all the database tables and seed sample data.
+Follow these visual steps to create your database using the pgAdmin (PostgreSQL administration platform) graphical interface:
 
-1. **Open Terminal/PowerShell** and navigate to the backend directory:
+1. **Launch pgAdmin**: Start pgAdmin (the app installed with PostgreSQL).
+2. **Authenticate with Server**:
+   - In the left sidebar list (Browser tree), click on the arrow next to **Servers**.
+   - If prompted, type in your PostgreSQL system password (the password you selected during PostgreSQL installation, e.g., `Admin@123` or `postgres`) to log in.
+3. **Create the Database**:
+   - Right-click on **Databases** under your active server connection.
+   - Select **Create** ➔ **Database...** from the menu.
+   - In the popup window that appears, type the following name in the **Database** input:
+     ```text
+     automation_tools_repo
+     ```
+   - Click the blue **Save** button at the bottom.
+4. **Result**: Your empty `automation_tools_repo` database is now running locally and ready for tables to be created!
+
+---
+
+### 2. Backend Installation & Running Database Migrations
+
+Next, we install the backend dependencies, configure the credentials file, and run database migrations. Migrations automatically create the tables inside your new PostgreSQL database.
+
+1. **Open your Terminal (or PowerShell)** and navigate to the backend folder:
    ```bash
    cd backend
    ```
-2. **Create a virtual environment** to isolate python packages:
+2. **Create a Virtual Environment**:
+   This keeps the python dependencies isolated for this project:
    ```powershell
    python -m venv venv
    ```
-3. **Activate the virtual environment**:
-   - On Windows (PowerShell):
+3. **Activate the Virtual Environment**:
+   * **Windows (PowerShell)**:
      ```powershell
      .\venv\Scripts\activate
      ```
-   - On Mac/Linux:
+     *(You will see `(venv)` appear at the start of your command prompt)*
+   * **macOS / Linux (Terminal)**:
      ```bash
      source venv/bin/activate
      ```
-4. **Install backend dependencies**:
+4. **Install Python Packages**:
    ```bash
    pip install -r requirements.txt
    ```
-5. **Configure environment settings**:
-   - Create a file named `.env` in the `backend/` folder (refer to the **Environment Variables Reference** section below).
-   - Ensure the `DATABASE_URL` matches your local PostgreSQL password.
-6. **Run Database Migrations (Creates Tables)**:
-   - Run the following command to automatically generate all tables in your newly created database:
-     ```bash
-     alembic upgrade head
+5. **Set Up the Environment Settings File (`.env`)**:
+   - Create a new file in the `backend/` folder and name it exactly `.env`.
+   - Copy and paste the configuration below, making sure you replace the password (`badri%40123`) in the connection string with your actual local PostgreSQL password:
+     ```env
+     DATABASE_URL=postgresql+asyncpg://postgres:YOUR_PASSWORD_HERE@localhost:5432/automation_tools_repo
+     SECRET_KEY=c3629e46a782bb19782bbccf0122956cf018a38a7281d77a02298ff2a0efc609
+     ALGORITHM=HS256
+     ACCESS_TOKEN_EXPIRE_MINUTES=60
+     UPLOAD_DIR=uploads
+     MAX_UPLOAD_SIZE_MB=50
      ```
-   - *To verify via pgAdmin*:
-     1. In the pgAdmin left sidebar, expand **Databases** ➔ **automation_tools_repo** ➔ **Schemas** ➔ **public** ➔ **Tables**.
-     2. Press `F5` to refresh. You should see 7 tables: `alembic_version`, `categories`, `dashboards`, `download_logs`, `tool_versions`, `tools`, and `users`.
-7. **Seed the database** (creates default admin account, categories, and sample scripts):
+     *(Note: If your password contains special characters like `@`, you must url-encode them: `@` becomes `%40`, etc.)*
+6. **Run Database Migrations**:
+   Run the database schema builder command. This reads the database migrations folder and builds all 7 application tables in PostgreSQL:
+   ```bash
+   alembic upgrade head
+   ```
+   * **How to Verify in pgAdmin**:
+     - In the pgAdmin Browser tree, expand: **Databases** ➔ **automation_tools_repo** ➔ **Schemas** ➔ **public** ➔ **Tables**.
+     - Right-click **Tables** and choose **Refresh** (or click it and press `F5`).
+     - You should see the newly created tables listed: `alembic_version`, `categories`, `dashboards`, `download_logs`, `tool_versions`, `tools`, and `users`.
+7. **Seed the Database**:
+   Populate the tables with system categories, sample scripts, and default logins:
    ```bash
    python seed.py
    ```
-   - *To verify data via pgAdmin*:
+   * **How to View Seeded Data in pgAdmin**:
      - Right-click on the `users` or `categories` table.
      - Choose **View/Edit Data** ➔ **All Rows**.
-     - You should see the default admin accounts and system categories inside the data grid.
-8. **Start the Backend Server**:
+     - You will see the default admin account (`admin@atr.internal`) and categories in the data window.
+8. **Start Backend Server**:
    ```bash
    uvicorn app.main:app --reload --port 8000
    ```
-   The interactive API Documentation will run at: **[http://localhost:8000/docs](http://localhost:8000/docs)** (Swagger UI).
+   * Your server is running at: `http://localhost:8000`.
+   * Open the interactive Swagger API documentation at: **[http://localhost:8000/docs](http://localhost:8000/docs)** to test the endpoints directly!
 
 ---
 
 ### 3. Frontend Installation & Startup
 
-1.  Navigate to the frontend directory:
-    ```bash
-    cd ../frontend
-    ```
-2.  Install npm packages:
-    ```bash
-    npm install
-    ```
-3.  Configure the environment variable in `frontend/.env` (see reference below).
-4.  Start the Vite development server:
-    ```bash
-    npm run dev
-    ```
-    The application will run locally at: **[http://localhost:5173](http://localhost:5173)**.
+Now, we will start the React user interface.
+
+1. **Open a new terminal window** (keep the backend server terminal running) and navigate to the frontend folder:
+   ```bash
+   cd frontend
+   ```
+2. **Install Frontend Dependencies**:
+   ```bash
+   npm install
+   ```
+3. **Configure Frontend Environment Variable (`.env`)**:
+   - Create a file named `.env` in the `frontend/` folder.
+   - Paste the following API connection URL inside it:
+     ```env
+     VITE_API_BASE_URL=http://localhost:8000
+     ```
+4. **Start Vite Development Server**:
+   ```bash
+   npm run dev
+   ```
+5. **Open Application**:
+   Open your browser and navigate to: **[http://localhost:5173](http://localhost:5173)**. Log in with the default credentials shown below!
 
 ---
 

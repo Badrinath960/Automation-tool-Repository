@@ -59,7 +59,10 @@ async def get_dashboards(
             "id": d.id,
             "name": d.name,
             "description": d.description,
+            "long_description": d.long_description,
             "embed_url": d.embed_url,
+            "report_url": d.report_url,
+            "report_type": d.report_type,
             "thumbnail_path": d.thumbnail_path,
             "category": {
                 "id": d.category.id,
@@ -105,7 +108,10 @@ async def get_dashboard_by_id(db: AsyncSession, dashboard_id: uuid.UUID) -> dict
         "id": dashboard.id,
         "name": dashboard.name,
         "description": dashboard.description,
+        "long_description": dashboard.long_description,
         "embed_url": dashboard.embed_url,
+        "report_url": dashboard.report_url,
+        "report_type": dashboard.report_type,
         "thumbnail_path": dashboard.thumbnail_path,
         "category": {
             "id": dashboard.category.id,
@@ -132,7 +138,10 @@ async def create_dashboard(
     dashboard = Dashboard(
         name=data.name,
         description=data.description,
+        long_description=data.long_description,
         embed_url=data.embed_url,
+        report_url=data.report_url,
+        report_type=data.report_type,
         category_id=data.category_id,
         created_by=user_id,
         tags=data.tags,

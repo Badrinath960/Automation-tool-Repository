@@ -46,6 +46,10 @@ export const toolsApi = {
     return axiosInstance.delete(`/api/tools/${toolId}`);
   },
 
+  deleteVersion: (toolId, versionId) => {
+    return axiosInstance.delete(`/api/tools/${toolId}/versions/${versionId}`);
+  },
+
   uploadVersion: (toolId, formData) => {
     return axiosInstance.post(`/api/tools/${toolId}/version`, formData, {
       headers: {

@@ -38,4 +38,16 @@ export const analyticsApi = {
       responseType: 'blob',
     });
   },
+
+  getCategories: () => {
+    return axiosInstance.get('/api/analytics/categories');
+  },
+
+  createCategory: (data) => {
+    return axiosInstance.post('/api/analytics/categories', data);
+  },
+
+  deleteCategory: (categoryId) => {
+    return axiosInstance.delete(`/api/analytics/categories/${categoryId}`);
+  },
 };

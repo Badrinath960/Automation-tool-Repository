@@ -28,6 +28,7 @@ class Tool(Base):
     is_featured: Mapped[bool] = mapped_column(Boolean, default=False)
     dependencies = mapped_column(JSONB, nullable=True)  # {"packages": ["pandas", ...]}
     documentation = mapped_column(Text, nullable=True)  # Markdown string
+    documentation_pdf_path = mapped_column(String(500), nullable=True)  # Path to uploaded detailed PDF guide
     created_at = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

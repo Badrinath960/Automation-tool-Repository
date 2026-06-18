@@ -9,6 +9,7 @@ const ToolUploadForm = ({ initialData = null, categories = [], onSuccess, onCanc
   const isEditMode = !!initialData;
   const [loading, setLoading] = useState(false);
   const [zipFile, setZipFile] = useState(null);
+  const [pdfFile, setPdfFile] = useState(null);
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
 
@@ -22,7 +23,7 @@ const ToolUploadForm = ({ initialData = null, categories = [], onSuccess, onCanc
       name: initialData?.name || '',
       description: initialData?.description || '',
       long_description: initialData?.long_description || '',
-      category_id: initialData?.category_id || '',
+      category_id: initialData?.category?.id || initialData?.category_id || '',
       tags: initialData?.tags ? initialData.tags.join(', ') : '',
       is_featured: initialData?.is_featured || false,
       dependencies: initialData?.dependencies
@@ -63,6 +64,18 @@ const ToolUploadForm = ({ initialData = null, categories = [], onSuccess, onCanc
     }
   };
 
+  const handlePdfChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('PDF file exceeds 10MB limit');
+        e.target.value = null;
+        return;
+      }
+      setPdfFile(file);
+    }
+  };
+
   const formatBytes = (bytes) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -93,6 +106,10 @@ const ToolUploadForm = ({ initialData = null, categories = [], onSuccess, onCanc
 
     if (thumbnailFile) {
       formData.append('thumbnail', thumbnailFile);
+    }
+
+    if (pdfFile) {
+      formData.append('documentation_pdf', pdfFile);
     }
 
     try {
@@ -270,12 +287,12 @@ const ToolUploadForm = ({ initialData = null, categories = [], onSuccess, onCanc
       )}
 
       {/* Drag & Drop Upload Shells */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
         {/* ZIP script archive upload (only if creating) */}
         {!isEditMode && (
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1.5">Script ZIP Archive *</label>
-            <div className="relative border-2 border-dashed border-gray-300 hover:border-primary-400 rounded-xl p-4 transition-colors duration-150 flex flex-col items-center justify-center bg-gray-50">
+            <div className="relative border-2 border-dashed border-gray-300 hover:border-accent-400 rounded-xl p-4 transition-colors duration-150 flex flex-col items-center justify-center bg-gray-50">
               <input
                 type="file"
                 accept=".zip"
@@ -300,11 +317,44 @@ const ToolUploadForm = ({ initialData = null, categories = [], onSuccess, onCanc
           </div>
         )}
 
+        {/* Documentation PDF (Optional) */}
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-1.5">Documentation PDF (Optional)</label>
+          <div className="relative border-2 border-dashed border-gray-300 hover:border-accent-400 rounded-xl p-4 transition-colors duration-150 flex flex-col items-center justify-center bg-gray-50">
+            <input
+              type="file"
+              accept=".pdf"
+              disabled={loading}
+              onChange={handlePdfChange}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+            {pdfFile ? (
+              <div className="text-center space-y-1">
+                <FileCheck className="h-8 w-8 text-accent-500 mx-auto" />
+                <p className="text-sm font-bold text-gray-800 truncate max-w-xs">{pdfFile.name}</p>
+                <p className="text-xs text-gray-500">{formatBytes(pdfFile.size)}</p>
+              </div>
+            ) : initialData?.documentation_pdf_path ? (
+              <div className="text-center space-y-1">
+                <FileCheck className="h-8 w-8 text-emerald-600 mx-auto" />
+                <p className="text-sm font-bold text-emerald-800 truncate max-w-xs">PDF Guide Uploaded</p>
+                <p className="text-xs text-gray-500">Click or drag to replace</p>
+              </div>
+            ) : (
+              <div className="text-center space-y-1 text-gray-400">
+                <Upload className="h-8 w-8 mx-auto" />
+                <p className="text-sm font-semibold text-gray-700">Select Guide PDF</p>
+                <p className="text-xs">PDF document up to 10MB</p>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Thumbnail Upload (Optional) */}
         <div>
           <label className="block text-sm font-bold text-gray-700 mb-1.5">Cover Image (Optional)</label>
           <div className="flex space-x-4">
-            <div className="relative flex-1 border-2 border-dashed border-gray-300 hover:border-primary-400 rounded-xl p-4 transition-colors duration-150 flex flex-col items-center justify-center bg-gray-50">
+            <div className="relative flex-1 border-2 border-dashed border-gray-300 hover:border-accent-400 rounded-xl p-4 transition-colors duration-150 flex flex-col items-center justify-center bg-gray-50">
               <input
                 type="file"
                 accept="image/*"
@@ -314,7 +364,7 @@ const ToolUploadForm = ({ initialData = null, categories = [], onSuccess, onCanc
               />
               {thumbnailFile ? (
                 <div className="text-center space-y-1">
-                  <ImageIcon className="h-8 w-8 text-primary-500 mx-auto" />
+                  <ImageIcon className="h-8 w-8 text-accent-500 mx-auto" />
                   <p className="text-sm font-bold text-gray-800 truncate max-w-xs">{thumbnailFile.name}</p>
                   <p className="text-xs text-gray-500">{formatBytes(thumbnailFile.size)}</p>
                 </div>
@@ -353,7 +403,7 @@ const ToolUploadForm = ({ initialData = null, categories = [], onSuccess, onCanc
           id="is_featured"
           type="checkbox"
           disabled={loading}
-          className="h-4.5 w-4.5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 transition-colors cursor-pointer"
+          className="h-4.5 w-4.5 text-accent-600 border-gray-300 rounded focus:ring-accent-500 transition-colors cursor-pointer"
           {...register('is_featured')}
         />
         <label htmlFor="is_featured" className="text-sm font-semibold text-gray-700 cursor-pointer select-none">
@@ -374,7 +424,7 @@ const ToolUploadForm = ({ initialData = null, categories = [], onSuccess, onCanc
         <button
           type="submit"
           disabled={loading}
-          className="px-5 py-2 rounded-lg text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 transition-colors flex items-center space-x-2"
+          className="px-5 py-2 rounded-lg text-sm font-bold text-white bg-accent-600 hover:bg-accent-700 transition-colors flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2"
         >
           {loading ? (
             <>

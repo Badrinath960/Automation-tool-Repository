@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Users, BarChart2, Package, ArrowLeft } from 'lucide-react';
+import { Users, BarChart2, Package, ArrowLeft, LayoutDashboard } from 'lucide-react';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -10,6 +10,11 @@ const Sidebar = () => {
       path: '/admin/tools',
       label: 'Tools',
       icon: Package,
+    },
+    {
+      path: '/admin/dashboards',
+      label: 'Dashboards',
+      icon: LayoutDashboard,
     },
     {
       path: '/admin/users',
@@ -41,13 +46,13 @@ const Sidebar = () => {
                   to={item.path}
                   className={`flex items-center px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-150 whitespace-nowrap ${
                     isActive
-                      ? 'bg-primary-50 text-primary-700'
+                      ? 'bg-accent-50 text-accent-700'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
                   <Icon
                     className={`h-4.5 w-4.5 mr-2.5 transition-colors ${
-                      isActive ? 'text-primary-700' : 'text-gray-400'
+                      isActive ? 'text-accent-600' : 'text-gray-400'
                     }`}
                   />
                   <span>{item.label}</span>

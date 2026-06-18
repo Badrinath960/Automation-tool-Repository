@@ -38,13 +38,9 @@ const ToolsPage = () => {
   // Read URL params
   const search = searchParams.get('search') || '';
   const categoryId = searchParams.get('category_id') || '';
-  const activeTags = searchParams.get('tags') ? searchParams.get('tags').split(',') : [];
   const sortBy = searchParams.get('sort_by') || 'newest';
   const page = parseInt(searchParams.get('page') || '1', 10);
   const perPage = 12;
-
-  // Static common tags to show in sidebar filter
-  const commonTags = ['excel', 'pdf', 'email', 'sap', 'web-scraping', 'rest-api', 'database', 'automation'];
 
   // Load categories on mount
   useEffect(() => {
@@ -72,7 +68,6 @@ const ToolsPage = () => {
       };
       if (search) params.search = search;
       if (categoryId) params.category_id = categoryId;
-      if (activeTags.length > 0) params.tags = activeTags.join(',');
 
       const response = await toolsApi.getTools(params);
       if (response && response.success && response.data) {
@@ -90,7 +85,7 @@ const ToolsPage = () => {
 
   useEffect(() => {
     fetchTools();
-  }, [search, categoryId, searchParams.get('tags'), sortBy, page]);
+  }, [search, categoryId, sortBy, page]);
 
   // Handle category selection
   const handleCategorySelect = (id) => {
@@ -101,26 +96,6 @@ const ToolsPage = () => {
       newParams.set('category_id', id);
     }
     newParams.set('page', '1'); // Reset to page 1
-    setSearchParams(newParams);
-  };
-
-  // Handle tag selection (multiple allowed)
-  const handleTagToggle = (tag) => {
-    const newParams = new URLSearchParams(searchParams);
-    let updatedTags = [...activeTags];
-
-    if (updatedTags.includes(tag)) {
-      updatedTags = updatedTags.filter((t) => t !== tag);
-    } else {
-      updatedTags.push(tag);
-    }
-
-    if (updatedTags.length > 0) {
-      newParams.set('tags', updatedTags.join(','));
-    } else {
-      newParams.delete('tags');
-    }
-    newParams.set('page', '1');
     setSearchParams(newParams);
   };
 
@@ -149,7 +124,7 @@ const ToolsPage = () => {
     fetchTools();
   };
 
-  const hasActiveFilters = search || categoryId || activeTags.length > 0;
+  const hasActiveFilters = search || categoryId;
 
   return (
     <div className="flex flex-col lg:flex-row gap-8">
@@ -164,7 +139,7 @@ const ToolsPage = () => {
             {hasActiveFilters && (
               <button
                 onClick={handleClearFilters}
-                className="text-xs font-semibold text-primary-600 hover:text-primary-700 flex items-center gap-1 transition-colors"
+                className="text-xs font-semibold text-accent-600 hover:text-accent-700 flex items-center gap-1 transition-colors"
               >
                 <RefreshCcw className="h-3 w-3" />
                 Clear
@@ -173,7 +148,7 @@ const ToolsPage = () => {
           </div>
 
           {/* Category Filters */}
-          <div className="space-y-4 mb-6">
+          <div className="space-y-4">
             <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Categories</h4>
             <div className="space-y-2">
               {categories.map((category) => (
@@ -182,42 +157,13 @@ const ToolsPage = () => {
                   onClick={() => handleCategorySelect(category.id)}
                   className={`w-full flex items-center justify-between text-left px-3 py-2 rounded-lg text-sm transition-all duration-150 ${
                     categoryId === category.id
-                      ? 'bg-primary-50 text-primary-700 font-bold border border-primary-100'
+                      ? 'bg-primary-50 text-primary-900 font-bold border border-primary-100'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 border border-transparent'
                   }`}
                 >
                   <span className="truncate">{category.name}</span>
                 </button>
               ))}
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className="border-t border-gray-100 my-4" />
-
-          {/* Tag Filters */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
-              <Tag className="h-3.5 w-3.5" />
-              Filter by Tags
-            </h4>
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {commonTags.map((tag) => {
-                const isActive = activeTags.includes(tag);
-                return (
-                  <button
-                    key={tag}
-                    onClick={() => handleTagToggle(tag)}
-                    className={`text-xs px-2.5 py-1 rounded-full font-semibold border transition-all duration-150 ${
-                      isActive
-                        ? 'bg-primary-600 border-primary-600 text-white shadow-sm'
-                        : 'bg-white border-gray-300 text-gray-600 hover:border-gray-400 hover:bg-gray-50'
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                );
-              })}
             </div>
           </div>
         </div>
@@ -242,7 +188,7 @@ const ToolsPage = () => {
             <select
               value={sortBy}
               onChange={handleSortChange}
-              className="border border-gray-300 rounded-lg text-sm bg-white text-gray-700 py-1.5 pl-2 pr-8 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="border border-gray-300 rounded-lg text-sm bg-white text-gray-700 py-1.5 pl-2 pr-8 focus:outline-none focus:ring-2 focus:ring-accent-500"
             >
               <option value="newest">Newest Releases</option>
               <option value="downloads">Popular Downloads</option>

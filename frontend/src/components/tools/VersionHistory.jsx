@@ -1,10 +1,10 @@
 import React from 'react';
-import { Download } from 'lucide-react';
+import { Download, Trash2 } from 'lucide-react';
 import Badge from '../common/Badge';
 import { toolsApi } from '../../api/toolsApi';
 import { toast } from 'react-hot-toast';
 
-const VersionHistory = ({ toolId, versions = [], latestVersionId, toolSlug }) => {
+const VersionHistory = ({ toolId, versions = [], latestVersionId, toolSlug, isAdmin = false, onDeleteSuccess }) => {
   
   // Format file sizes into readable strings
   const formatFileSize = (bytes) => {
@@ -49,6 +49,25 @@ const VersionHistory = ({ toolId, versions = [], latestVersionId, toolSlug }) =>
     }
   };
 
+  // Trigger deletion of specific version
+  const handleDeleteVersion = async (versionId, versionNumber) => {
+    if (!window.confirm(`Are you sure you want to delete version ${versionNumber}? This action cannot be undone.`)) {
+      return;
+    }
+    
+    try {
+      await toolsApi.deleteVersion(toolId, versionId);
+      toast.success(`Version ${versionNumber} deleted successfully.`);
+      if (onDeleteSuccess) {
+        onDeleteSuccess();
+      }
+    } catch (error) {
+      console.error('Delete version error:', error);
+      const errorMsg = error.response?.data?.detail || 'Failed to delete version. Please try again.';
+      toast.error(errorMsg);
+    }
+  };
+
   if (versions.length === 0) {
     return (
       <div className="text-gray-400 py-6 text-center text-sm">
@@ -71,7 +90,7 @@ const VersionHistory = ({ toolId, versions = [], latestVersionId, toolSlug }) =>
             <th className="px-6 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Release Date</th>
             <th className="px-6 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">File Size</th>
             <th className="px-6 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Release Notes</th>
-            <th className="px-6 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Action</th>
+            <th className="px-6 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100 bg-white">
@@ -92,7 +111,7 @@ const VersionHistory = ({ toolId, versions = [], latestVersionId, toolSlug }) =>
                 <td className="px-6 py-4 text-gray-600 max-w-xs truncate" title={v.release_notes}>
                   {v.release_notes || '—'}
                 </td>
-                <td className="px-6 py-4 text-right">
+                <td className="px-6 py-4 text-right space-x-2">
                   <button
                     onClick={() => handleDownloadVersion(v.version_number)}
                     className="inline-flex items-center space-x-1.5 text-primary-600 hover:text-primary-800 font-bold hover:bg-primary-50 px-2.5 py-1.5 rounded-lg transition-colors duration-150 focus:outline-none"
@@ -101,6 +120,16 @@ const VersionHistory = ({ toolId, versions = [], latestVersionId, toolSlug }) =>
                     <Download className="h-4 w-4" />
                     <span>Download</span>
                   </button>
+                  {isAdmin && (
+                    <button
+                      onClick={() => handleDeleteVersion(v.id, v.version_number)}
+                      className="inline-flex items-center space-x-1.5 text-red-600 hover:text-red-800 font-bold hover:bg-red-50 px-2.5 py-1.5 rounded-lg transition-colors duration-150 focus:outline-none"
+                      aria-label={`Delete version ${v.version_number}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span>Delete</span>
+                    </button>
+                  )}
                 </td>
               </tr>
             );

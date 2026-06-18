@@ -73,7 +73,7 @@ const VersionUploadModalContent = ({ onSubmit, onCancel, loading }) => {
 
       <div>
         <label className="block text-sm font-bold text-gray-700 mb-1.5">ZIP Archive *</label>
-        <div className="relative border-2 border-dashed border-gray-300 hover:border-primary-400 rounded-xl p-4 transition-all duration-150 flex flex-col items-center justify-center bg-gray-50">
+        <div className="relative border-2 border-dashed border-gray-300 hover:border-accent-400 rounded-xl p-4 transition-all duration-150 flex flex-col items-center justify-center bg-gray-50">
           <input
             type="file"
             accept=".zip"
@@ -109,7 +109,7 @@ const VersionUploadModalContent = ({ onSubmit, onCancel, loading }) => {
         <button
           type="submit"
           disabled={loading}
-          className="px-5 py-2 rounded-lg text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 transition-colors flex items-center space-x-2"
+          className="px-5 py-2 rounded-lg text-sm font-bold text-white bg-accent-600 hover:bg-accent-700 transition-colors flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2"
         >
           {loading ? (
             <>
@@ -315,10 +315,10 @@ const AdminToolsPage = () => {
   return (
     <div className="space-y-6 text-left">
       {/* Header toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 border border-border rounded-2xl shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 border border-border rounded-xl shadow-sm">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
-            <Wrench className="h-6 w-6 text-primary-600" />
+            <Wrench className="h-6 w-6 text-accent-500" />
             Manage Tools
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
@@ -336,7 +336,7 @@ const AdminToolsPage = () => {
 
           <button
             onClick={() => setCreateOpen(true)}
-            className="flex items-center space-x-1.5 px-4 py-2 border border-transparent rounded-lg text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 transition-colors focus:outline-none"
+            className="flex items-center space-x-1.5 px-4 py-2 border border-transparent rounded-lg text-sm font-bold text-white bg-accent-600 hover:bg-accent-700 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-500"
           >
             <Plus className="h-5 w-5" />
             <span className="hidden sm:inline">Add Script</span>
@@ -345,7 +345,7 @@ const AdminToolsPage = () => {
       </div>
 
       {/* Tools Table Container */}
-      <div className="bg-white border border-border rounded-2xl p-6 shadow-sm">
+      <div className="bg-white border border-border rounded-xl p-6 shadow-sm">
         <div className="space-y-6">
           <AdminToolTable
             tools={tools}
