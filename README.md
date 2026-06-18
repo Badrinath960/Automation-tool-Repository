@@ -166,8 +166,8 @@ The database seeder (`seed.py`) populates the system with two default accounts:
 ### Backend Configuration (`backend/.env`)
 Create this file in the `backend/` directory:
 ```env
-DATABASE_URL=postgresql+asyncpg://postgres:badri%40123@localhost:5432/automation_tools_repo
-SECRET_KEY=c3629e46a782bb19782bbccf0122956cf018a38a7281d77a02298ff2a0efc609
+DATABASE_URL=postgresql+asyncpg://postgres:yourpassword@localhost:5432/automation_tools_repo
+SECRET_KEY=c3629e46a782bb19782bbccf0122956cf018a38a7281d77a02298ff2a0efc
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 UPLOAD_DIR=uploads
